@@ -1,0 +1,74 @@
+cabal-version:      2.4
+name:               aoc2022
+version:            0.1.0.0
+
+-- A short (one-line) description of the package.
+synopsis: Advent of code 2022, the one where I try to learn Haskell.
+
+-- A longer description of the package.
+description: Run with "cabal run aoc2022 -- <day>"
+
+-- A URL where users can report bugs.
+-- bug-reports:
+
+-- The license under which the package is released.
+-- license:
+author:             Charlotte Curtis
+maintainer:         ccurtis@mtroyal.ca
+
+-- A copyright notice.
+-- copyright:
+-- category:
+extra-source-files:
+    CHANGELOG.md
+    README.md
+
+-- Copied from https://github.com/pabloariasal/advent-of-code-2021-haskell/blob/main/aoc21.cabal
+
+library
+    exposed-modules:
+        Day01
+        Day02
+        Day03
+        Day04
+        Day05
+        Day06
+        Day07
+    build-depends:    
+        base ^>=4.14.2.0,
+        split,
+        containers
+
+    hs-source-dirs:   src
+    default-language: Haskell2010
+
+test-suite test
+    type:       exitcode-stdio-1.0
+    build-depends:
+        base,
+        HUnit,
+        aoc2022,
+        containers
+    main-is: Main.hs
+    hs-source-dirs: test
+    default-language: Haskell2010
+    other-modules:
+        Test.Day06
+        Test.Day07
+        Common
+
+executable aoc2022
+    main-is:          Main.hs
+
+    -- Modules included in this executable, other than Main.
+    -- other-modules:
+
+    -- LANGUAGE extensions used by modules in this package.
+    -- other-extensions:
+    build-depends:
+        base ^>=4.14.2.0,
+        containers,
+        aoc2022
+    
+    hs-source-dirs:   app
+    default-language: Haskell2010
