@@ -10,37 +10,53 @@ function load_input(filename)
     return test_vals, operands
 end
 
-function can_do(tv, nums)
+function concat(lhs, rhs)
+    return lhs * 10^(ndigits(rhs)) + rhs
+end
+
+function uncat(num, rhs)
+    divisor = 10^ndigits(rhs)
+    if (num - rhs) % divisor != 0
+        return -1
+    else
+        return (num - rhs) ÷ divisor
+    end
+end
+
+function can_do(tv, nums, p)
     # start at the end and recursively check if a +/* should be done
     # base case: we've gone through all the numbers and it works out
     if (length(nums) == 1)
         return (tv == nums[1])
     end
 
-    div_can_do = false
-    # if we can divide, do it, otherwise subtract
+    success = false
+    # if we can divide, do it
     if (tv % nums[end] == 0)
-        div_can_do = can_do(tv ÷ nums[end], nums[1:end-1])
-    else
-        return can_do(tv - nums[end], nums[1:end-1])
+        success = can_do(tv ÷ nums[end], nums[1:end-1], p)
     end
 
-    # if it divided evenly the first time, but ultimately led to failure,
-    # try again with subtraction
-    if div_can_do
-        return true
-    else
-        return can_do(tv - nums[end], nums[1:end-1])
+    # if that didn't work, try subtracting
+    success = success || can_do(tv - nums[end], nums[1:end-1], p)
+
+    # if it's part 2 and still no success, try uncatting
+    if !success && p == 2
+        lhs = uncat(tv, nums[end])
+        if lhs > 0
+            success = can_do(lhs, nums[1:end-1], p)
+        end
     end
+    return success
 end
 
-function part1()
+function part(p)
     test_vals, operands = load_input("day7/input")
-    p1 = 0
+    result = 0
     for (tv, nums) in zip(test_vals, operands)
-        p1 += tv * can_do(tv, nums)
+        result += tv * can_do(tv, nums, p)
     end
-    @show p1
+    return result
 end
 
-part1()
+@show part(1)
+@show part(2)
