@@ -11,8 +11,9 @@ fn main() {
     }
 
     let day: i32 = args[1].parse::<i32>().unwrap();
+
     match day { 
-        1 => day1::solve(),
+        1 => day1::solve(args.len() > 2),
         _ => println!("Can't solve day {}", day),
     }
 }
