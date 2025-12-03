@@ -1,11 +1,10 @@
 use std::fs;
-// use math::round;
 
 fn split_range(r: &str) -> (String, String) {
     let mut it = r.split("-");
     (
-        it.next().expect("Parsing failure!").to_string(),
-        it.next().expect("Parsing failure!").to_string(),
+        it.next().expect("Parsing failure!").trim().to_string(),
+        it.next().expect("Parsing failure!").trim().to_string(),
     )
 }
 
@@ -17,19 +16,29 @@ fn load(filename: &str) -> Vec<(String, String)> {
         .collect::<Vec<(String, String)>>()
 }
 
-fn divide(mut num_str: String, digits: usize) -> (u32, u32) {
+fn divide(num_str: String, high: bool) -> (u64, u64) {
+    println!("Splitting {}", num_str);
+    // special case for 1-digit numbers
+    let num = num_str.parse::<u64>().unwrap();
+    if num < 10 {
+        return (10, num);
+    }
+
     let mut mid = num_str.len() / 2;
+    if num_str.len() % 2 != 0 && high {
+        mid += 1;
+    }
 
     // split in half and cast to integers
-    let second_half = num_str.split_off(mid);
+    let (first_half, _) = num_str.split_at(mid);
     (
-        num_str.parse::<u32>().unwrap(), 
-        second_half.parse::<u32>().unwrap(),
+        first_half.parse::<u64>().unwrap(), 
+        num,
     )
 }
 
 fn part1(input: &Vec<(String, String)>) {
-    let mut invalid: u32 = 0;
+    let mut invalid: u64 = 0;
     for range in input {
         let digits = (range.0.len(), range.1.len());
         if digits.0 % 2 != 0 && digits.1 == digits.0 {
@@ -37,23 +46,19 @@ fn part1(input: &Vec<(String, String)>) {
             continue;
         }
 
-        if digits.0 % 2 != 0 && digits.1 % 2 == 0 {
-            
-        }
-
-
-        let max_digits = range.1.len();
-
-        let start = divide(range.0.clone(), max_digits);
-        let end = divide(range.1.clone(), max_digits);
+        let start = divide(range.0.clone(), false);
+        let end = divide(range.1.clone(), true);
         
-        println!("Left loop from {} to {}", start.0, end.0);
-
-        for left in start.0..end.0 {
-            // check if 
+        for left in start.0..end.0 + 1 {
+            // check if the repeated number is in the range
+            let rep = left * 10u64.pow(left.ilog10() + 1) + left;
+            if rep >= start.1 && rep <= end.1 {
+                invalid += u64::from(rep);
+            }
         }
     } 
     println!("Final sum: {}", invalid);
+    // 19128774587 is too low
 }
 
 fn part2(input: &Vec<(String, String)>) {}
