@@ -17,11 +17,10 @@ fn load(filename: &str) -> Vec<(String, String)> {
 }
 
 fn divide(num_str: String, high: bool) -> (u64, u64) {
-    println!("Splitting {}", num_str);
     // special case for 1-digit numbers
     let num = num_str.parse::<u64>().unwrap();
     if num < 10 {
-        return (10, num);
+        return (1, num);
     }
 
     let mut mid = num_str.len() / 2;
@@ -43,16 +42,20 @@ fn part1(input: &Vec<(String, String)>) {
         let digits = (range.0.len(), range.1.len());
         if digits.0 % 2 != 0 && digits.1 == digits.0 {
             // numbers only in an odd range, skip
+            println!("Skipping range from {} to {}", range.0, range.1);
             continue;
         }
 
         let start = divide(range.0.clone(), false);
         let end = divide(range.1.clone(), true);
         
+        println!("Looking for repeats between {} and {}", start.1, end.1);
+
         for left in start.0..end.0 + 1 {
             // check if the repeated number is in the range
             let rep = left * 10u64.pow(left.ilog10() + 1) + left;
             if rep >= start.1 && rep <= end.1 {
+                println!("Found {}", rep);
                 invalid += u64::from(rep);
             }
         }
@@ -61,7 +64,7 @@ fn part1(input: &Vec<(String, String)>) {
     // 19128774587 is too low
 }
 
-fn part2(input: &Vec<(String, String)>) {}
+fn part2(_input: &Vec<(String, String)>) {}
 
 pub fn solve(sample: bool) {
     let mut filename = "data/day2/input.txt";
