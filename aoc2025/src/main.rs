@@ -1,5 +1,6 @@
 mod day1;
 mod day2;
+mod day3;
 
 use std::env;
 
@@ -21,6 +22,7 @@ fn main() {
     match day { 
         1 => day1::solve(sample),
         2 => day2::solve(sample),
+        3 => day3::solve(sample),
         _ => println!("Can't solve day {}", day),
     }
 }
