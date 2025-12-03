@@ -16,55 +16,91 @@ fn load(filename: &str) -> Vec<(String, String)> {
         .collect::<Vec<(String, String)>>()
 }
 
-fn divide(num_str: String, high: bool) -> (u64, u64) {
-    // special case for 1-digit numbers
-    let num = num_str.parse::<u64>().unwrap();
-    if num < 10 {
-        return (1, num);
+fn divide(num_str: String, times: usize, high: bool) -> u64 {
+    // special case for indivisible numbers
+    if num_str.len() < times {
+        return 1;
     }
 
-    let mut mid = num_str.len() / 2;
-    if num_str.len() % 2 != 0 && high {
+    let mut mid = num_str.len() / times;
+    if num_str.len() % times != 0 && high {
         mid += 1;
     }
 
-    // split in half and cast to integers
-    let (first_half, _) = num_str.split_at(mid);
-    (
-        first_half.parse::<u64>().unwrap(), 
-        num,
-    )
+    // split in parts and cast to integers
+    let (first_part, _) = num_str.split_at(mid);
+    let result = first_part.parse::<u64>();
+    if result.is_err() {
+        println!("Can't parse {} up to {} ({} divisions)", num_str, mid, times);
+    }
+    result.unwrap()
 }
 
 fn part1(input: &Vec<(String, String)>) {
     let mut invalid: u64 = 0;
-    for range in input {
-        let digits = (range.0.len(), range.1.len());
+    for range_str in input {
+        let digits = (range_str.0.len(), range_str.1.len());
         if digits.0 % 2 != 0 && digits.1 == digits.0 {
             // numbers only in an odd range, skip
-            println!("Skipping range from {} to {}", range.0, range.1);
+            println!("Skipping range from {} to {}", range_str.0, range_str.1);
             continue;
         }
+        let range = (
+            range_str.0.parse::<u64>().unwrap(),
+            range_str.1.parse::<u64>().unwrap(),
+        );
 
-        let start = divide(range.0.clone(), false);
-        let end = divide(range.1.clone(), true);
+        let start = divide(range_str.0.clone(), 2, false);
+        let end = divide(range_str.1.clone(), 2, true);
         
-        println!("Looking for repeats between {} and {}", start.1, end.1);
+        println!("Looking for repeats between {} and {}", range.0, range.1);
 
-        for left in start.0..end.0 + 1 {
+        for left in start..end + 1 {
             // check if the repeated number is in the range
             let rep = left * 10u64.pow(left.ilog10() + 1) + left;
-            if rep >= start.1 && rep <= end.1 {
+            if rep >= range.0 && rep <= range.1 {
                 println!("Found {}", rep);
                 invalid += u64::from(rep);
             }
         }
     } 
     println!("Final sum: {}", invalid);
-    // 19128774587 is too low
 }
 
-fn part2(_input: &Vec<(String, String)>) {}
+fn part2(input: &Vec<(String, String)>) {
+    let mut invalid: u64 = 0;
+    for range_str in input {
+        let digits = (range_str.0.len(), range_str.1.len());
+        let range = (
+            range_str.0.parse::<u64>().unwrap(),
+            range_str.1.parse::<u64>().unwrap(),
+        );
+        
+        println!("Looking for repeats between {} and {}", range.0, range.1);
+
+        // keep track so we don't add duplicates
+        let mut found = Vec::<u64>::new();
+
+        for divisions in 2..digits.1 + 1 {
+            let start = divide(range_str.0.clone(), divisions, false);
+            let end = divide(range_str.1.clone(), divisions, true);
+            for part in start..end + 1 {
+                // check if the repeated number is in the range
+                let mut rep = part;
+                let p_digits = part.ilog10();
+                for n in 1..divisions {
+                    rep += part * 10u64.pow((p_digits + 1) * n as u32);
+                }
+                if rep >= range.0 && rep <= range.1 && !found.contains(&rep) {
+                    println!("Found {}", rep);
+                    invalid += u64::from(rep);
+                    found.push(rep);
+                }
+            }
+        }
+    } 
+    println!("Final sum: {}", invalid);
+}
 
 pub fn solve(sample: bool) {
     let mut filename = "data/day2/input.txt";
