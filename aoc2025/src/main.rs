@@ -1,4 +1,5 @@
 mod day1;
+mod day2;
 
 use std::env;
 
@@ -10,10 +11,16 @@ fn main() {
         return;
     }
 
+    let mut sample = false;
+    if args.len() > 2 && args[2] == "sample" {
+        sample = true;
+    }
+
     let day: i32 = args[1].parse::<i32>().unwrap();
 
     match day { 
-        1 => day1::solve(args.len() > 2),
+        1 => day1::solve(sample),
+        2 => day2::solve(sample),
         _ => println!("Can't solve day {}", day),
     }
 }
